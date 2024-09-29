@@ -1,0 +1,37 @@
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <mutex>
+
+// Global mutex to synchronize output
+std::mutex coutMutex;
+
+// Function to be executed by each thread
+void printNumbers(int threadID) {
+    for (int t = 0; t < 5; ++t) {
+        // Lock the mutex before accessing std::cout
+        std::lock_guard<std::mutex> guard(coutMutex);
+        
+        // Output safely within the mutex lock
+        std::cout << "Thread " << threadID << " is printing number: " << t << std::endl;
+    }
+}
+
+int main() {
+    // Vector to store threads
+    std::vector<std::thread> threads;
+
+    // Launch 3 threads
+    for (int t = 0; t < 3; ++t) {
+        threads.push_back(std::thread(printNumbers, t));
+    }
+
+    // Wait for all threads to finish
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    std::cout << "All threads completed." << std::endl;
+
+    return 0;
+}
